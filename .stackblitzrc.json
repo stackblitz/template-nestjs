@@ -1,0 +1,44 @@
+{
+  "tasks": {
+    "build-all": [
+      "sb image build base",
+      "sb image build server"
+    ],
+    "build": [
+      "gcloud builds submit --tag gcr.io/stackblitz/prio-${STACKBLITZ_PROJECT_NAME}"
+    ],
+    "deploy": [
+      "gcloud beta run deploy prio-${STACKBLITZ_PROJECT_NAME} --image gcr.io/stackblitz/prio-${STACKBLITZ_PROJECT_NAME} --region us-central1 --allow-unauthenticated"
+    ],
+    "initialDeploy": [
+      "gcloud beta run deploy prio-${STACKBLITZ_PROJECT_NAME} --image gcr.io/stackblitz/template-nestjs --region us-central1 --allow-unauthenticated"
+    ],
+    "start": [
+      "sb run -t $STACKBLITZ_PROJECT_SOURCE"
+    ],
+    "dev": [
+      "npx ng serve --port 3000 --host 0.0.0.0 --disable-host-check --progress false"
+    ],
+    "prepare": [
+      "npm install -g @angular/cli"
+    ]
+  },
+  "images": {
+    "template": {
+      "name": "gcr.io/stackblitz/template-nestjs"
+    },
+    "base": {
+      "name": "gcr.io/stackblitz/template-nestjs-base",
+      "args": {
+        "build": ["-f", "Dockerfile.base"]
+      }
+    },
+    "server": {
+      "name": "gcr.io/stackblitz/template-nestjs-server",
+      "args": {
+        "build": ["--cache-from", "nestjs-base:latest"],
+        "run": ["-p", "18080:8080", "-e", "PORT=8080"]
+      }
+    }
+  }
+}
